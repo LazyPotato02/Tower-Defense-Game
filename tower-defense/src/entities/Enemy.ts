@@ -26,6 +26,19 @@ export class Enemy {
         app.stage.addChild(this.sprite);
     }
 
+    getX() {
+        return this.sprite.x;
+    }
+
+    getY() {
+        return this.sprite.y;
+    }
+
+    hit(damage: number) {
+        console.log(`🧟 Enemy hit! Damage: ${damage}`);
+        // По-късно ще имаме HP и умиране
+    }
+
     update(delta: number) {
         if (this.currentIndex >= this.path.length - 1) return;
 
