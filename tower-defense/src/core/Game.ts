@@ -20,9 +20,10 @@ export class Game {
     }
 
     update(delta: number) {
-        for (const enemy of this.enemies) {
-            enemy.update(delta);
-        }
+        this.enemies = this.enemies.filter(e => {
+            e.update(delta);
+            return e.isAlive();
+        });
 
         for (const tower of this.towers) {
             tower.update(delta);

@@ -10,6 +10,8 @@ export class Enemy {
     private speed = 1.5;
     private path: Point[];
     private currentIndex = 0;
+    private hp = 4;
+    private isDead = false;
 
     constructor(app: PIXI.Application, path: Point[], tileSize: number) {
         this.path = path;
@@ -27,22 +29,41 @@ export class Enemy {
     }
 
     getX() {
-        return this.sprite.x;
+        return this.isDead ? -99999 : this.sprite.x;
     }
 
     getY() {
-        return this.sprite.y;
+        return this.isDead ? -99999 : this.sprite.y;
     }
 
     hit(damage: number) {
-        console.log(`🧟 Enemy hit! Damage: ${damage}`);
-        // По-късно ще имаме HP и умиране
+        this.hp -= damage;
+        console.log(`🧟 Enemy hit! HP left: ${this.hp}`);
+
+        if (this.hp <= 0) {
+            this.destroy();
+        }
+    }
+
+    destroy() {
+        this.isDead = true;
+        this.sprite.destroy();
+    }
+
+    isAlive(): boolean {
+        return !this.isDead;
     }
 
     update(delta: number) {
-        if (this.currentIndex >= this.path.length - 1) return;
+        if (this.isDead || this.currentIndex >= this.path.length - 1 || !this.sprite) return;
 
-        const tileSize = 64; // или подай като параметър
+        const color = this.hp <= 2 ? 0xaa0000 : 0xff3333;
+        this.sprite.clear();
+        this.sprite.beginFill(color);
+        this.sprite.drawCircle(0, 0, 20);
+        this.sprite.endFill();
+
+        const tileSize = 64;
         const target = this.path[this.currentIndex + 1];
         const tx = target.x * tileSize + tileSize / 2;
         const ty = target.y * tileSize + tileSize / 2;

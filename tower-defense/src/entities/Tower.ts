@@ -3,7 +3,7 @@ import { Enemy } from './Enemy';
 import {Projectile} from "./Projectiles.ts";
 
 export class Tower {
-    private sprite: PIXI.Graphics;
+    private readonly sprite: PIXI.Graphics;
     private fireCooldown = 20; // кадри между изстрели
     private timer = 0;
     private range = 100;
@@ -62,7 +62,7 @@ export class Tower {
             this.y,
             1
         );
-        projectile.update(1); // ← минимално движение
+        projectile.update(1);
         this.projectiles.push(projectile);
     }
 }

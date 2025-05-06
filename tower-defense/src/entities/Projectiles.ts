@@ -18,7 +18,7 @@ export class Projectile {
     ) {
         this.app=app
         this.sprite = new PIXI.Graphics();
-        this.sprite.beginFill(0xffff00);
+        this.sprite.beginFill(0xf70505);
         this.sprite.drawCircle(0, 0, this.radius);
         this.sprite.endFill();
         this.sprite.x = x;
@@ -38,7 +38,6 @@ export class Projectile {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < this.radius + 4) {
-            // Попадение!
             this.target.hit(this.damage);
             this.destroy();
             return;
