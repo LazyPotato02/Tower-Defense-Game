@@ -14,7 +14,8 @@ export class Game {
     private waveTimer = 5;
     private waveCooldown = 5;
     private waveNumber = 1;
-
+    private lives = 5;
+    private livesBar: PIXI.Graphics;
 
 
     constructor(private app: PIXI.Application) {
@@ -30,8 +31,23 @@ export class Game {
         this.moneyText.x = 20;
         this.moneyText.y = 20;
         this.app.stage.addChild(this.moneyText);
+        this.livesBar = new PIXI.Graphics();
+        this.livesBar.x = 20;
+        this.livesBar.y = 60;
+        this.app.stage.addChild(this.livesBar);
+        this.updateLivesBar();
     }
+    private updateLivesBar() {
+        this.livesBar.clear();
+        const width = 200;
+        const height = 20;
+        const percent = Math.max(this.lives, 0) / 5;
 
+        this.livesBar.lineStyle(2, 0xffffff);
+        this.livesBar.beginFill(0xff4444);
+        this.livesBar.drawRect(0, 0, width * percent, height);
+        this.livesBar.endFill();
+    }
     update(delta: number) {
         this.enemies = this.enemies.filter(enemy => {
             enemy.update(delta);
@@ -50,10 +66,20 @@ export class Game {
         for (let i = 0; i < this.waveNumber + 2; i++) {
             setTimeout(() => {
                 const enemy = new Enemy(this.app, this.grid.getPath(), this.tileSize);
-                enemy.setOnDeath(() => {
+                enemy.setOnDeath((escaped) => {
                     this.enemies = this.enemies.filter(e => e.isAlive());
-                    this.money += 20;
-                    this.moneyText.text = `Money: ${this.money}`;
+
+                    if (escaped) {
+                        this.lives--;
+                        this.updateLivesBar();
+                        if (this.lives <= 0) {
+                            console.log("💀 Game Over!");
+                            this.app.ticker.stop();
+                        }
+                    } else {
+                        this.addMoney(15);
+                        this.updateMoneyText();
+                    }
                 });
                 this.enemies.push(enemy);
             }, i * 500); // закъснение между враговете
@@ -63,7 +89,24 @@ export class Game {
     private spawnEnemy() {
         const path = this.grid.getPath();
         const enemy = new Enemy(this.app, path, 64);
-        enemy.setOnDeath(() => this.addMoney(50));
+        enemy.setOnDeath((escaped) => {
+            this.enemies = this.enemies.filter(e => e.isAlive());
+
+            if (escaped) {
+                this.lives--;
+                this.updateLivesBar();
+                if (this.lives <= 0) {
+                    console.log("💀 Game Over!");
+                    this.app.ticker.stop();
+                }
+            } else {
+                this.addMoney(15);
+                this.updateMoneyText();
+            }
+        });
+
+
+
         this.enemies.push(enemy);
     }
 

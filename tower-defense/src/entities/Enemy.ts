@@ -13,7 +13,7 @@ export class Enemy {
     private hp = 4;
     private isDead = false;
 
-    private onDeathCallback?: () => void;
+    private onDeathCallback?: (escaped: boolean) => void;
 
     constructor(app: PIXI.Application, path: Point[], tileSize: number) {
         this.path = path;
@@ -39,17 +39,18 @@ export class Enemy {
 
     hit(damage: number) {
         this.hp -= damage;
+
         // console.log(`🧟 Enemy hit! HP left: ${this.hp}`);
         if (this.hp <= 0) {
             this.destroy();
+            if (this.onDeathCallback) this.onDeathCallback(false); // убит
         }
     }
 
     destroy() {
         if (this.isDead) return;
         this.isDead = true;
-        this.sprite.destroy(); // ❗️само веднъж
-        if (this.onDeathCallback) this.onDeathCallback();
+        this.sprite.destroy(); // само визуално
     }
 
     isAlive(): boolean {
@@ -57,7 +58,14 @@ export class Enemy {
     }
 
     update(delta: number) {
-        if (this.isDead) return; 
+        if (this.isDead) return;
+        if (this.currentIndex >= this.path.length - 1) {
+            if (!this.isDead) {
+                this.destroy();
+                if (this.onDeathCallback) this.onDeathCallback(true); // избягал!
+            }
+            return;
+        }
 
         const color = this.hp <= 2 ? 0xaa0000 : 0xff3333;
         this.sprite.clear();
@@ -86,7 +94,7 @@ export class Enemy {
         this.sprite.y += vy;
     }
 
-    setOnDeath(cb: () => void) {
+    setOnDeath(cb: (escaped: boolean) => void) {
         this.onDeathCallback = cb;
     }
 }
