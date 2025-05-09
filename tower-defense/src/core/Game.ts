@@ -5,11 +5,18 @@ import { Tower } from '../entities/Tower';
 import * as PIXI from 'pixi.js';
 
 export class Game {
+    private readonly tileSize = 64;
     private grid: Grid;
     private enemies: Enemy[] = [];
     private towers: Tower[] = [];
     private money = 100;
     private moneyText: PIXI.Text;
+    private waveTimer = 5;
+    private waveCooldown = 5;
+    private waveNumber = 1;
+
+
+
     constructor(private app: PIXI.Application) {
         this.grid = new Grid(app);
         this.grid.onBuildRequest = (x, y) => this.tryBuildTower(x, y);
@@ -30,12 +37,29 @@ export class Game {
             enemy.update(delta);
             return enemy.isAlive();
         });
-
+        this.waveTimer -= delta / 60;
+        if (this.waveTimer <= 0) {
+            this.spawnWave();
+            this.waveTimer = this.waveCooldown;
+        }
         for (const tower of this.towers) {
             tower.update(delta);
         }
     }
-
+    spawnWave() {
+        for (let i = 0; i < this.waveNumber + 2; i++) {
+            setTimeout(() => {
+                const enemy = new Enemy(this.app, this.grid.getPath(), this.tileSize);
+                enemy.setOnDeath(() => {
+                    this.enemies = this.enemies.filter(e => e.isAlive());
+                    this.money += 20;
+                    this.moneyText.text = `Money: ${this.money}`;
+                });
+                this.enemies.push(enemy);
+            }, i * 500); // закъснение между враговете
+        }
+        this.waveNumber++;
+    }
     private spawnEnemy() {
         const path = this.grid.getPath();
         const enemy = new Enemy(this.app, path, 64);
@@ -67,9 +91,9 @@ export class Game {
         if (this.spendMoney(cost)) {
             const tower = new Tower(
                 this.app,
-                x * tileSize + tileSize / 2,
-                y * tileSize + tileSize / 2,
-                this.enemies
+                x * tileSize,
+                y * tileSize,
+                () => this.enemies
             );
             this.towers.push(tower);
             console.log(`🛡️ Built tower at (${x}, ${y})`);
