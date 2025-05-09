@@ -4,9 +4,9 @@ import {Projectile} from "./Projectiles.ts";
 
 export class Tower {
     private readonly sprite: PIXI.Graphics;
-    private fireCooldown = 20; // кадри между изстрели
+    private fireCooldown = 30; // кадри между изстрели
     private timer = 0;
-    private range = 100;
+    private range = 120;
     private x: number;
     private y: number;
     private enemies: Enemy[]
@@ -23,8 +23,6 @@ export class Tower {
         this.y = y;
         this.enemies = enemies;
         this.sprite = new PIXI.Graphics();
-        this.sprite.beginFill(0x00ccff);
-        this.sprite.drawRect(-16, -16, 32, 32);
         this.sprite.endFill();
         this.sprite.x = x;
         this.sprite.y = y;

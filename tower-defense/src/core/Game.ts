@@ -9,11 +9,20 @@ export class Game {
     private enemies: Enemy[] = [];
     private towers: Tower[] = [];
     private money = 100;
-
+    private moneyText: PIXI.Text;
     constructor(private app: PIXI.Application) {
         this.grid = new Grid(app);
         this.grid.onBuildRequest = (x, y) => this.tryBuildTower(x, y);
         this.spawnEnemy();
+
+        this.moneyText = new PIXI.Text(`Money: ${this.money}`, {
+            fontFamily: 'Arial',
+            fontSize: 24,
+            fill: 0xffffff,
+        });
+        this.moneyText.x = 20;
+        this.moneyText.y = 20;
+        this.app.stage.addChild(this.moneyText);
     }
 
     update(delta: number) {
@@ -36,12 +45,14 @@ export class Game {
 
     private addMoney(amount: number) {
         this.money += amount;
+        this.updateMoneyText();
         console.log(`💰 +${amount} (Total: ${this.money})`);
     }
 
     private spendMoney(amount: number): boolean {
         if (this.money >= amount) {
             this.money -= amount;
+            this.updateMoneyText();
             console.log(`💸 -${amount} (Left: ${this.money})`);
             return true;
         }
@@ -63,5 +74,8 @@ export class Game {
             this.towers.push(tower);
             console.log(`🛡️ Built tower at (${x}, ${y})`);
         }
+    }
+    private updateMoneyText() {
+        this.moneyText.text = `Money: ${this.money}`;
     }
 }
