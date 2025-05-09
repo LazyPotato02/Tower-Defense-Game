@@ -6,6 +6,7 @@ import * as PIXI from 'pixi.js';
 
 export class Game {
     private readonly tileSize = 64;
+    private gameStarted = false;
     private grid: Grid;
     private enemies: Enemy[] = [];
     private towers: Tower[] = [];
@@ -36,6 +37,7 @@ export class Game {
         this.livesBar.y = 60;
         this.app.stage.addChild(this.livesBar);
         this.updateLivesBar();
+        this.showStartScreen();
     }
     private updateLivesBar() {
         this.livesBar.clear();
@@ -48,7 +50,54 @@ export class Game {
         this.livesBar.drawRect(0, 0, width * percent, height);
         this.livesBar.endFill();
     }
+    private showStartScreen() {
+        const overlay = new PIXI.Container();
+
+        const bg = new PIXI.Graphics();
+        bg.beginFill(0x000000, 0.8);
+        bg.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
+        bg.endFill();
+        overlay.addChild(bg);
+
+        const title = new PIXI.Text('Tower Defense', {
+            fontSize: 48,
+            fill: '#ffffff',
+            fontWeight: 'bold',
+        });
+        title.anchor.set(0.5);
+        title.x = this.app.screen.width / 2;
+        title.y = this.app.screen.height / 2 - 60;
+        overlay.addChild(title);
+
+        const button = new PIXI.Graphics();
+        button.beginFill(0xffffff);
+        button.drawRoundedRect(-100, -25, 200, 50, 10);
+        button.endFill();
+        button.x = this.app.screen.width / 2;
+        button.y = this.app.screen.height / 2 + 20;
+        button.eventMode = 'static';
+        button.cursor = 'pointer';
+
+        const buttonText = new PIXI.Text('Start Game', {
+            fontSize: 24,
+            fill: 0x000000,
+            fontWeight: 'bold',
+        });
+        buttonText.anchor.set(0.5);
+        button.addChild(buttonText);
+
+        button.on('pointerdown', () => {
+            this.app.stage.removeChild(overlay);
+            this.gameStarted = true;
+        });
+
+        overlay.addChild(button);
+        this.app.stage.addChild(overlay);
+    }
+
+
     update(delta: number) {
+        if (!this.gameStarted) return;
         this.enemies = this.enemies.filter(enemy => {
             enemy.update(delta);
             return enemy.isAlive();
@@ -185,7 +234,7 @@ export class Game {
         button.eventMode = 'static';
         button.cursor = 'pointer';
         button.on('pointerdown', () => {
-            location.reload(); // Рефреш на страницата
+            location.reload();
         });
 
         const buttonText = new PIXI.Text('Play Again', {

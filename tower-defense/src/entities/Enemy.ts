@@ -6,7 +6,7 @@ interface Point {
 }
 
 export class Enemy {
-    private sprite: PIXI.Graphics;
+    private sprite: PIXI.Sprite;
     private speed = 1.5;
     private path: Point[];
     private currentIndex = 0;
@@ -18,10 +18,11 @@ export class Enemy {
     constructor(app: PIXI.Application, path: Point[], tileSize: number) {
         this.path = path;
 
-        this.sprite = new PIXI.Graphics();
-        this.sprite.beginFill(0xff3333);
-        this.sprite.drawCircle(0, 0, tileSize / 4);
-        this.sprite.endFill();
+
+        this.sprite = PIXI.Sprite.from('assets/enemy.png');
+        this.sprite.anchor.set(0.5);
+        this.sprite.width = tileSize;
+        this.sprite.height = tileSize;
 
         this.sprite.x = path[0].x * tileSize + tileSize / 2;
         this.sprite.y = path[0].y * tileSize + tileSize / 2;
@@ -50,7 +51,7 @@ export class Enemy {
     destroy() {
         if (this.isDead) return;
         this.isDead = true;
-        this.sprite.destroy(); // само визуално
+        this.sprite.destroy(); 
     }
 
     isAlive(): boolean {
@@ -67,11 +68,6 @@ export class Enemy {
             return;
         }
 
-        const color = this.hp <= 2 ? 0xaa0000 : 0xff3333;
-        this.sprite.clear();
-        this.sprite.beginFill(color);
-        this.sprite.drawCircle(0, 0, 20);
-        this.sprite.endFill();
 
         const tileSize = 64;
         const target = this.path[this.currentIndex + 1];
