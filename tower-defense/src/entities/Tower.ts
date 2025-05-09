@@ -12,6 +12,9 @@ export class Tower {
     private projectiles: Projectile[] = [];
     private app: PIXI.Application;
     private getEnemies: () => Enemy[];
+    private level = 1;
+    private onClick?: () => void;
+    private text: PIXI.Text;
 
     constructor(
         app: PIXI.Application,
@@ -25,13 +28,24 @@ export class Tower {
         this.getEnemies = getEnemies;
 
         this.sprite = new PIXI.Graphics();
+        this.sprite.beginFill(0x00ccff); // син цвят
+        this.sprite.drawCircle(32, 32, 20); // радиус 20
+        this.sprite.endFill();
         this.sprite.x = x;
         this.sprite.y = y;
 
         this.timer = this.fireCooldown;
         app.stage.addChild(this.sprite);
     }
-
+    upgradeFireRate() {
+        if (this.fireCooldown > 5) {
+            this.fireCooldown -= 5;
+            if (this.level < 6){
+                this.level += 1;
+            }
+            console.log(`⬆️ Tower upgraded! Level: ${this.level}, cooldown: ${this.fireCooldown}`);
+        }
+    }
     update(delta: number) {
         this.timer += delta;
 
@@ -55,7 +69,14 @@ export class Tower {
             return p.isAlive();
         });
     }
-
+    setOnClick(callback: () => void) {
+        this.onClick = callback;
+        this.sprite.eventMode = 'static';
+        this.sprite.cursor = 'pointer';
+        this.sprite.on('pointerdown', () => {
+            if (this.onClick) this.onClick();
+        });
+    }
     fireAt(enemy: Enemy) {
         const projectile = new Projectile(
             this.app,

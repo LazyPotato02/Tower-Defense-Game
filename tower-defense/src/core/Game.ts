@@ -95,9 +95,19 @@ export class Game {
                 y * tileSize,
                 () => this.enemies
             );
+            tower.setOnClick(() => {
+                if (this.spendMoney(50)) {
+                    tower.upgradeFireRate();
+                    console.log("🔧 Tower upgraded!");
+                } else {
+                    console.log("🚫 Not enough money to upgrade.");
+                }
+            });
             this.towers.push(tower);
+
             console.log(`🛡️ Built tower at (${x}, ${y})`);
         }
+
     }
     private updateMoneyText() {
         this.moneyText.text = `Money: ${this.money}`;
