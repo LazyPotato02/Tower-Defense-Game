@@ -28,20 +28,32 @@ export class Tower {
         this.getEnemies = getEnemies;
 
         this.sprite = new PIXI.Graphics();
-        this.sprite.beginFill(0x00ccff); // син цвят
-        this.sprite.drawCircle(32, 32, 20); // радиус 20
+        this.sprite.beginFill(0x00ccff);
+        this.sprite.drawCircle(32, 32, 20);
         this.sprite.endFill();
         this.sprite.x = x;
         this.sprite.y = y;
-
+        this.text = new PIXI.Text('', {
+            fontSize: 16,
+            fill: 0xffcc00,
+            fontWeight: 'bold',
+        });
+        this.text.anchor.set(0.5);
+        this.text.x = this.x + 30;
+        this.text.y = this.y - 10;
+        this.app.stage.addChild(this.text);
         this.timer = this.fireCooldown;
         app.stage.addChild(this.sprite);
     }
     upgradeFireRate() {
         if (this.fireCooldown > 5) {
             this.fireCooldown -= 5;
-            if (this.level < 6){
+            if (this.level < 6) {
                 this.level += 1;
+                this.text.text = '';
+            }
+            if (this.level === 6) {
+                this.text.text = 'Max Level!';
             }
             console.log(`⬆️ Tower upgraded! Level: ${this.level}, cooldown: ${this.fireCooldown}`);
         }

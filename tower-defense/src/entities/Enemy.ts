@@ -39,7 +39,7 @@ export class Enemy {
 
     hit(damage: number) {
         this.hp -= damage;
-        console.log(`🧟 Enemy hit! HP left: ${this.hp}`);
+        // console.log(`🧟 Enemy hit! HP left: ${this.hp}`);
         if (this.hp <= 0) {
             this.destroy();
         }
@@ -57,7 +57,7 @@ export class Enemy {
     }
 
     update(delta: number) {
-        if (this.isDead) return; // ✅ важно: спираме ъпдейта напълно
+        if (this.isDead) return; 
 
         const color = this.hp <= 2 ? 0xaa0000 : 0xff3333;
         this.sprite.clear();
