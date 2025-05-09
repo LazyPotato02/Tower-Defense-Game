@@ -73,7 +73,7 @@ export class Game {
                         this.lives--;
                         this.updateLivesBar();
                         if (this.lives <= 0) {
-                            console.log("💀 Game Over!");
+                            this.showGameOverScreen();
                             this.app.ticker.stop();
                         }
                     } else {
@@ -82,7 +82,7 @@ export class Game {
                     }
                 });
                 this.enemies.push(enemy);
-            }, i * 500); // закъснение между враговете
+            }, i * 500);
         }
         this.waveNumber++;
     }
@@ -96,7 +96,7 @@ export class Game {
                 this.lives--;
                 this.updateLivesBar();
                 if (this.lives <= 0) {
-                    console.log("💀 Game Over!");
+                    this.showGameOverScreen();
                     this.app.ticker.stop();
                 }
             } else {
@@ -154,5 +154,50 @@ export class Game {
     }
     private updateMoneyText() {
         this.moneyText.text = `Money: ${this.money}`;
+    }
+    private showGameOverScreen() {
+        const overlay = new PIXI.Container();
+
+        const bg = new PIXI.Graphics();
+        bg.beginFill(0x000000, 0.8);
+        bg.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
+        bg.endFill();
+        overlay.addChild(bg);
+
+        const style = new PIXI.TextStyle({
+            fontSize: 48,
+            fill: '#ffffff',
+            fontWeight: 'bold',
+        });
+
+        const gameOverText = new PIXI.Text('GAME OVER', style);
+        gameOverText.anchor.set(0.5);
+        gameOverText.x = this.app.screen.width / 2;
+        gameOverText.y = this.app.screen.height / 2 - 60;
+        overlay.addChild(gameOverText);
+
+        const button = new PIXI.Graphics();
+        button.beginFill(0xffffff);
+        button.drawRoundedRect(-100, -25, 200, 50, 10);
+        button.endFill();
+        button.x = this.app.screen.width / 2;
+        button.y = this.app.screen.height / 2 + 20;
+        button.eventMode = 'static';
+        button.cursor = 'pointer';
+        button.on('pointerdown', () => {
+            location.reload(); // Рефреш на страницата
+        });
+
+        const buttonText = new PIXI.Text('Play Again', {
+            fontSize: 24,
+            fill: 0x000000,
+            fontWeight: 'bold',
+        });
+        buttonText.anchor.set(0.5);
+        button.addChild(buttonText);
+
+        overlay.addChild(button);
+
+        this.app.stage.addChild(overlay);
     }
 }
