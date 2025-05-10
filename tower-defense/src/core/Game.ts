@@ -176,7 +176,9 @@ export class Game {
         return false;
     }
 
-    private tryBuildTower(x: number, y: number) {
+    private tryBuildTower(x: number, y: number): boolean {
+        if (!this.gameStarted) return false;
+
         const tileSize = 64;
         const cost = 50;
 
@@ -190,17 +192,15 @@ export class Game {
             tower.setOnClick(() => {
                 if (this.spendMoney(50)) {
                     tower.upgradeFireRate();
-                    console.log("🔧 Tower upgraded!");
-                } else {
-                    console.log("🚫 Not enough money to upgrade.");
                 }
             });
             this.towers.push(tower);
-
-            console.log(`🛡️ Built tower at (${x}, ${y})`);
+            return true;
         }
 
+        return false;
     }
+
     private updateMoneyText() {
         this.moneyText.text = `Money: ${this.money}`;
     }

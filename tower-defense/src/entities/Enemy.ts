@@ -6,9 +6,9 @@ interface Point {
 }
 
 export class Enemy {
-    private sprite: PIXI.Sprite;
+    private readonly sprite: PIXI.Sprite;
     private speed = 1.5;
-    private path: Point[];
+    private readonly path: Point[];
     private currentIndex = 0;
     private hp = 4;
     private isDead = false;
@@ -51,7 +51,7 @@ export class Enemy {
     destroy() {
         if (this.isDead) return;
         this.isDead = true;
-        this.sprite.destroy(); 
+        this.sprite.destroy();
     }
 
     isAlive(): boolean {
@@ -63,7 +63,7 @@ export class Enemy {
         if (this.currentIndex >= this.path.length - 1) {
             if (!this.isDead) {
                 this.destroy();
-                if (this.onDeathCallback) this.onDeathCallback(true); // избягал!
+                if (this.onDeathCallback) this.onDeathCallback(true);
             }
             return;
         }

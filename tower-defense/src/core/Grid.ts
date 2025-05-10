@@ -16,7 +16,7 @@ export class Grid {
     // @ts-ignore
     private buildTexture: PIXI.Texture;
 
-    public onBuildRequest?: (x: number, y: number) => void;
+    public onBuildRequest?: (x: number, y: number) => boolean;
 
     private readonly path: Point[] = [
         { x: 0, y: 5 },
@@ -74,6 +74,8 @@ export class Grid {
     }
 
     private drawGrid(): void {
+        const builtMap = new Set<string>(); // за да пазим дали вече е построено на това поле
+
         for (let y = 0; y < this.rows; y++) {
             for (let x = 0; x < this.cols; x++) {
                 const isPath = this.path.some(p => p.x === x && p.y === y);
@@ -83,7 +85,7 @@ export class Grid {
                 if (isPath) {
                     sprite = new PIXI.Sprite(this.roadTexture);
                 } else if (isBuildable) {
-                    // по начало – черно поле
+
                     const gfx = new PIXI.Graphics();
                     gfx.beginFill(0x000000);
                     gfx.drawRect(0, 0, this.tileSize, this.tileSize);
@@ -93,19 +95,22 @@ export class Grid {
 
                     gfx.eventMode = 'static';
                     gfx.cursor = 'pointer';
+
                     gfx.on('pointerdown', () => {
-                        if (this.onBuildRequest) {
-                            this.onBuildRequest(x, y);
-                            // смени с tower.png
+                        const key = `${x},${y}`;
+                        if (builtMap.has(key)) return;
+
+                        if (this.onBuildRequest && this.onBuildRequest(x, y)) {
+                            builtMap.add(key);
                             const tower = PIXI.Sprite.from('assets/tower.png');
                             tower.width = this.tileSize;
                             tower.height = this.tileSize;
                             tower.x = x * this.tileSize;
                             tower.y = y * this.tileSize;
-                            this.app.stage.removeChild(gfx);
                             this.app.stage.addChild(tower);
                         }
                     });
+
 
                     this.app.stage.addChild(gfx);
                     continue;
@@ -121,5 +126,6 @@ export class Grid {
             }
         }
     }
+
 
 }
