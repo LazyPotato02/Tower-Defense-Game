@@ -45,18 +45,27 @@ export class Tower {
         this.timer = this.fireCooldown;
         app.stage.addChild(this.sprite);
     }
-    upgradeFireRate() {
+    upgradeFireRate(): boolean {
+        if (this.level >= 5) {
+            this.text.text = 'Max Level!';
+            console.log('🚫 Tower is already at max level.');
+            return false;
+        }
+
         if (this.fireCooldown > 5) {
             this.fireCooldown -= 5;
-            if (this.level < 6) {
-                this.level += 1;
-                this.text.text = '';
-            }
-            if (this.level === 6) {
-                this.text.text = 'Max Level!';
-            }
-            console.log(`⬆️ Tower upgraded! Level: ${this.level}, cooldown: ${this.fireCooldown}`);
         }
+
+        this.level += 1;
+
+        if (this.level === 5) {
+            this.text.text = 'Max Level!';
+        } else {
+            this.text.text = '';
+        }
+
+        console.log(`⬆️ Tower upgraded! Level: ${this.level}, cooldown: ${this.fireCooldown}`);
+        return true;
     }
     update(delta: number) {
         this.timer += delta;

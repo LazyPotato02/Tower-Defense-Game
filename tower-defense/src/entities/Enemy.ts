@@ -31,7 +31,7 @@ export class Enemy {
         this.sprite.y = path[0].y * tileSize + tileSize / 2;
 
         if (isBoss) {
-            this.hp = 20;
+            this.hp = 30;
             this.speed = 0.8;
         }
 
