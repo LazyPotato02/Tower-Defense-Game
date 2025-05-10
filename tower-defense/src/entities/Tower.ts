@@ -4,9 +4,9 @@ import { Projectile } from "./Projectiles.ts";
 
 export class Tower {
     private readonly sprite: PIXI.Graphics;
-    private fireCooldown = 30;
+    private fireCooldown = 25;
     private timer = 0;
-    private range = 120;
+    private range = 130;
     private x: number;
     private y: number;
     private projectiles: Projectile[] = [];

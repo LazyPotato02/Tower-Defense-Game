@@ -12,14 +12,17 @@ export class Enemy {
     private currentIndex = 0;
     private hp = 4;
     private isDead = false;
-
+    private isBoss:boolean = false;
     private onDeathCallback?: (escaped: boolean) => void;
 
-    constructor(app: PIXI.Application, path: Point[], tileSize: number) {
+    constructor(app: PIXI.Application, path: Point[], tileSize: number, isBoss = false) {
         this.path = path;
+        this.isBoss = isBoss;
 
-
-        this.sprite = PIXI.Sprite.from('assets/enemy.png');
+        const texture = isBoss
+            ? PIXI.Texture.from('assets/boss.png')
+            : PIXI.Texture.from('assets/enemy.png');
+        this.sprite = new PIXI.Sprite(texture);
         this.sprite.anchor.set(0.5);
         this.sprite.width = tileSize;
         this.sprite.height = tileSize;
@@ -27,9 +30,13 @@ export class Enemy {
         this.sprite.x = path[0].x * tileSize + tileSize / 2;
         this.sprite.y = path[0].y * tileSize + tileSize / 2;
 
+        if (isBoss) {
+            this.hp = 20;
+            this.speed = 0.8;
+        }
+
         app.stage.addChild(this.sprite);
     }
-
     getX() {
         return this.isDead ? -99999 : this.sprite.x;
     }
@@ -37,11 +44,17 @@ export class Enemy {
     getY() {
         return this.isDead ? -99999 : this.sprite.y;
     }
-
+    setHp(hp: number) {
+        this.hp = hp;
+    }
     hit(damage: number) {
         this.hp -= damage;
 
-        // console.log(`🧟 Enemy hit! HP left: ${this.hp}`);
+        // if (this.isBoss) {
+        //     console.log(`💥 BOSS hit! Remaining HP: ${this.hp}`);
+        // } else {
+        //     console.log(`🧟 Enemy hit! Remaining HP: ${this.hp}`);
+        // }
         if (this.hp <= 0) {
             this.destroy();
             if (this.onDeathCallback) this.onDeathCallback(false); // убит
@@ -82,10 +95,12 @@ export class Enemy {
             this.currentIndex++;
             return;
         }
-
+        if (this.isBoss) {
+            this.sprite.alpha = 0.7 + 0.3 * Math.sin(Date.now() / 200);
+        }
         const vx = (dx / dist) * this.speed * delta;
         const vy = (dy / dist) * this.speed * delta;
-
+        this.sprite.rotation = Math.atan2(vy, vx);
         this.sprite.x += vx;
         this.sprite.y += vy;
     }

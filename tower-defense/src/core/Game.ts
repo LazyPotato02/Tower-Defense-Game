@@ -17,18 +17,27 @@ export class Game {
     private waveNumber = 1;
     private lives = 5;
     private livesBar: PIXI.Graphics;
+    private waveText: PIXI.Text;
 
 
     constructor(private app: PIXI.Application) {
         this.grid = new Grid(app);
         this.grid.onBuildRequest = (x, y) => this.tryBuildTower(x, y);
-        this.spawnEnemy();
+
 
         this.moneyText = new PIXI.Text(`Money: ${this.money}`, {
             fontFamily: 'Arial',
             fontSize: 24,
             fill: 0xffffff,
         });
+        this.waveText = new PIXI.Text(`Wave: ${this.waveNumber}`, {
+            fontFamily: 'Arial',
+            fontSize: 24,
+            fill: 0xffffff,
+        });
+        this.waveText.x = 20;
+        this.waveText.y = 100;
+        this.app.stage.addChild(this.waveText);
         this.moneyText.x = 20;
         this.moneyText.y = 20;
         this.app.stage.addChild(this.moneyText);
@@ -112,51 +121,54 @@ export class Game {
         }
     }
     spawnWave() {
-        for (let i = 0; i < this.waveNumber + 2; i++) {
-            setTimeout(() => {
-                const enemy = new Enemy(this.app, this.grid.getPath(), this.tileSize);
-                enemy.setOnDeath((escaped) => {
-                    this.enemies = this.enemies.filter(e => e.isAlive());
+        const isBossWave = this.waveNumber % 5 === 0;
+        this.waveText.text = `Wave: ${this.waveNumber}`;
+        if (isBossWave) {
+            const boss = new Enemy(this.app, this.grid.getPath(), this.tileSize, true);
+            boss.setOnDeath((escaped) => {
+                this.enemies = this.enemies.filter(e => e.isAlive());
 
-                    if (escaped) {
-                        this.lives--;
-                        this.updateLivesBar();
-                        if (this.lives <= 0) {
-                            this.showGameOverScreen();
-                            this.app.ticker.stop();
-                        }
-                    } else {
-                        this.addMoney(15);
-                        this.updateMoneyText();
+                if (escaped) {
+                    this.lives--;
+                    this.updateLivesBar();
+                    if (this.lives <= 0) {
+                        this.showGameOverScreen();
+                        this.app.ticker.stop();
                     }
-                });
-                this.enemies.push(enemy);
-            }, i * 500);
+                } else {
+                    this.addMoney(50);
+                    this.updateMoneyText();
+                }
+            });
+            this.enemies.push(boss);
+        } else {
+            const enemyCount = 5 + Math.floor(this.waveNumber * 1.5);
+            for (let i = 0; i < enemyCount; i++) {
+                setTimeout(() => {
+                    const enemy = new Enemy(this.app, this.grid.getPath(), this.tileSize);
+                    enemy.setOnDeath((escaped) => {
+                        this.enemies = this.enemies.filter(e => e.isAlive());
+                        const hpScale = Math.floor(this.waveNumber / 3);
+                        enemy.setHp(4 + hpScale);
+                        if (escaped) {
+                            this.lives--;
+                            this.updateLivesBar();
+                            if (this.lives <= 0) {
+                                this.showGameOverScreen();
+                                this.app.ticker.stop();
+                            }
+                        } else {
+                            this.addMoney(15);
+                            this.updateMoneyText();
+
+                        }
+                    });
+                    this.enemies.push(enemy);
+                }, i * 500);
+            }
         }
         this.waveNumber++;
-    }
-    private spawnEnemy() {
-        const path = this.grid.getPath();
-        const enemy = new Enemy(this.app, path, 64);
-        enemy.setOnDeath((escaped) => {
-            this.enemies = this.enemies.filter(e => e.isAlive());
 
-            if (escaped) {
-                this.lives--;
-                this.updateLivesBar();
-                if (this.lives <= 0) {
-                    this.showGameOverScreen();
-                    this.app.ticker.stop();
-                }
-            } else {
-                this.addMoney(15);
-                this.updateMoneyText();
-            }
-        });
-
-
-
-        this.enemies.push(enemy);
     }
 
     private addMoney(amount: number) {
